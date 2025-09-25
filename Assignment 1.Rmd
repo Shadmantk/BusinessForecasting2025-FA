@@ -1,0 +1,163 @@
+```{r}
+
+# Load required library
+library(readxl)
+
+# Import dataset
+Typical_Employee_Survey_Data_3_ <- read_excel(
+  "G:/R files/Typical_Employee_Survey_Data_Final.xlsx",
+  col_names = FALSE
+)
+
+# Loop through columns
+for (colname in names(Typical_Employee_Survey_Data_3_)) {
+  
+  column_data <- Typical_Employee_Survey_Data_3_[[colname]]
+  
+  # Check if numeric
+  if (is.numeric(column_data)) {
+    
+    # Show 5-point summary
+    cat("===== 5-Point Summary for", colname, "=====\n")
+    print(fivenum(column_data, na.rm = TRUE))
+    cat("\n")
+    
+    # Boxplot
+    boxplot(column_data,
+            main = paste("Boxplot of", colname),
+            col = "lightblue")
+  }
+}
+```
+
+```{r}
+# Load library
+library(readxl)
+
+# Import dataset
+Typical_Employee_Survey_Data_3_ <- read_excel(
+  "G:/R files/Typical_Employee_Survey_Data_Final.xlsx",
+  col_names = FALSE
+)
+
+# Convert selected columns to factors
+Typical_Employee_Survey_Data_3_$`...2`  <- as.factor(Typical_Employee_Survey_Data_3_$`...2`)
+Typical_Employee_Survey_Data_3_$`...3`  <- as.factor(Typical_Employee_Survey_Data_3_$`...3`)
+Typical_Employee_Survey_Data_3_$`...4`  <- as.factor(Typical_Employee_Survey_Data_3_$`...4`)
+Typical_Employee_Survey_Data_3_$`...6`  <- as.factor(Typical_Employee_Survey_Data_3_$`...6`)
+Typical_Employee_Survey_Data_3_$`...7`  <- as.factor(Typical_Employee_Survey_Data_3_$`...7`)
+Typical_Employee_Survey_Data_3_$`...8`  <- as.factor(Typical_Employee_Survey_Data_3_$`...8`)
+Typical_Employee_Survey_Data_3_$`...9`  <- as.factor(Typical_Employee_Survey_Data_3_$`...9`)
+Typical_Employee_Survey_Data_3_$`...10` <- as.factor(Typical_Employee_Survey_Data_3_$`...10`)
+Typical_Employee_Survey_Data_3_$`...11` <- as.factor(Typical_Employee_Survey_Data_3_$`...11`)
+```
+
+```{r}
+# Loop through numeric columns
+for (colname in names(Typical_Employee_Survey_Data_3_)) {
+  
+  column_data <- Typical_Employee_Survey_Data_3_[[colname]]
+  
+  if (is.numeric(column_data)) {
+    
+    # 5-point summary
+    cat("===== 5-Point Summary for", colname, "=====\n")
+    print(fivenum(column_data, na.rm = TRUE))
+    cat("\n")
+    
+    # Boxplot
+    boxplot(column_data,
+            main = paste("Boxplot of", colname),
+            col = "lightblue")
+  }
+}
+
+# Load library
+library(readxl)
+
+# Import dataset
+Typical_Employee_Survey_Data_3_ <- read_excel(
+  "G:/R files/Typical_Employee_Survey_Data_Final.xlsx",
+  col_names = FALSE
+)
+
+# Convert selected columns to factors
+Typical_Employee_Survey_Data_3_$`...2`  <- as.factor(Typical_Employee_Survey_Data_3_$`...2`)
+Typical_Employee_Survey_Data_3_$`...3`  <- as.factor(Typical_Employee_Survey_Data_3_$`...3`)
+Typical_Employee_Survey_Data_3_$`...4`  <- as.factor(Typical_Employee_Survey_Data_3_$`...4`)
+Typical_Employee_Survey_Data_3_$`...6`  <- as.factor(Typical_Employee_Survey_Data_3_$`...6`)
+Typical_Employee_Survey_Data_3_$`...7`  <- as.factor(Typical_Employee_Survey_Data_3_$`...7`)
+Typical_Employee_Survey_Data_3_$`...8`  <- as.factor(Typical_Employee_Survey_Data_3_$`...8`)
+Typical_Employee_Survey_Data_3_$`...9`  <- as.factor(Typical_Employee_Survey_Data_3_$`...9`)
+Typical_Employee_Survey_Data_3_$`...10` <- as.factor(Typical_Employee_Survey_Data_3_$`...10`)
+Typical_Employee_Survey_Data_3_$`...11` <- as.factor(Typical_Employee_Survey_Data_3_$`...11`)
+
+# Loop numeric columns
+for (colname in names(Typical_Employee_Survey_Data_3_)) {
+  
+  column_data <- Typical_Employee_Survey_Data_3_[[colname]]
+  
+  if (is.numeric(column_data)) {
+    
+    # 5-point summary
+    cat("===== 5-Point Summary for", colname, "=====\n")
+    print(fivenum(column_data, na.rm = TRUE))
+    cat("\n")
+    
+    # Boxplot
+    boxplot(column_data,
+            main = paste("Boxplot of", colname),
+            col = "lightblue")
+  }
+}
+```
+
+```{r}
+# Load library
+library(readxl)
+
+# Read data
+Typical_Employee_Survey_Data_3_ <- read_excel(
+  "G:/R files/Typical_Employee_Survey_Data_Final.xlsx",
+  col_names = FALSE
+)
+
+# Convert selected columns to factors
+Typical_Employee_Survey_Data_3_$`...2`  <- as.factor(Typical_Employee_Survey_Data_3_$`...2`)
+Typical_Employee_Survey_Data_3_$`...3`  <- as.factor(Typical_Employee_Survey_Data_3_$`...3`)
+Typical_Employee_Survey_Data_3_$`...4`  <- as.factor(Typical_Employee_Survey_Data_3_$`...4`)
+Typical_Employee_Survey_Data_3_$`...6`  <- as.factor(Typical_Employee_Survey_Data_3_$`...6`)
+Typical_Employee_Survey_Data_3_$`...7`  <- as.factor(Typical_Employee_Survey_Data_3_$`...7`)
+Typical_Employee_Survey_Data_3_$`...8`  <- as.factor(Typical_Employee_Survey_Data_3_$`...8`)
+Typical_Employee_Survey_Data_3_$`...9`  <- as.factor(Typical_Employee_Survey_Data_3_$`...9`)
+Typical_Employee_Survey_Data_3_$`...10` <- as.factor(Typical_Employee_Survey_Data_3_$`...10`)
+Typical_Employee_Survey_Data_3_$`...11` <- as.factor(Typical_Employee_Survey_Data_3_$`...11`)
+
+# Loop through columns
+for (colname in names(Typical_Employee_Survey_Data_3_)) {
+  
+  column_data <- Typical_Employee_Survey_Data_3_[[colname]]
+  
+  # If numeric: summary + boxplot
+  if (is.numeric(column_data)) {
+    cat("===== 5-Point Summary for", colname, "=====\n")
+    print(fivenum(column_data, na.rm = TRUE))
+    cat("\n")
+    
+    boxplot(column_data,
+            main = paste("Boxplot of", colname),
+            col = "lightblue")
+    
+    # If factor: counts + barplot
+  } else if (is.factor(column_data)) {
+    cat("===== Frequency Counts for", colname, "=====\n")
+    print(table(column_data))
+    cat("\n")
+    
+    barplot(table(column_data),
+            main = paste("Barplot of", colname),
+            col = "lightgreen")
+  }
+}
+```
+
