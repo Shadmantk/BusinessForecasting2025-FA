@@ -1,0 +1,76 @@
+# Shadman Tousif Khandoker - Coffee Sales Forecasting
+
+
+library(fpp2)
+library(TTR)
+library(readxl)
+
+# Read data
+coffee_data <- read_excel("G:/R files/Coffee Sales Data Clean.xlsx")
+
+# Convert to time series object
+coffee_ts <- ts(coffee_data$Sales, start = c(1, 1), frequency = 12)
+
+# Exploration
+attributes(coffee_ts)
+plot(coffee_ts, main = "Coffee Sales Over Time")
+acf(coffee_ts, main = "ACF of Coffee Sales")
+
+# Forecasting methods
+mean_forecast <- meanf(coffee_ts, 5)
+plot(mean_forecast, main = "Mean Forecast")
+
+naive_forecast <- naive(coffee_ts, 5)
+plot(naive_forecast, main = "Naive Forecast")
+
+rwf_forecast <- rwf(coffee_ts, 5)
+rwf_drift_forecast <- rwf(coffee_ts, 5, drift = TRUE)
+
+snaive_forecast <- snaive(coffee_ts, 5)
+
+MA5_forecast <- ma(coffee_ts, order = 5)
+MA9_forecast <- ma(coffee_ts, order = 9)
+
+# Plot all in a single chart
+plot(mean_forecast, main = "Comparison of All Forecast Methods")
+lines(naive_forecast$mean, col = "red")
+lines(rwf_forecast$mean, col = "green")
+lines(rwf_drift_forecast$mean, col = "darkgreen")
+lines(snaive_forecast$mean, col = "black")
+lines(MA5_forecast, col = "pink")
+lines(MA9_forecast, col = "blue")
+legend("topleft", 
+       legend = c("Mean", "Naive", "RW", "RW Drift", "Seasonal Naive", "MA5", "MA9"),
+       col = c("blue", "red", "green", "darkgreen", "black", "pink", "blue"),
+       lty = 1, cex = 0.7)
+
+
+# Check accuracy of forecasts
+accuracy(mean_forecast)
+accuracy(naive_forecast)
+accuracy(rwf_forecast)
+accuracy(rwf_drift_forecast)
+accuracy(snaive_forecast)
+accuracy(ets_forecast)
+
+# For ETS model specifically
+# Step 1: Create ETS model
+ets_model <- ets(coffee_ts)
+
+# Step 2: Forecast with ETS model
+ets_forecast <- forecast(ets_model, h = 5)
+
+# Step 3: Check accuracy
+accuracy(ets_forecast)
+
+# Additional steps
+
+# Step 1 - Understand your data
+str(coffee_ts)
+
+# Step 2 - Plot data
+plot(coffee_ts, main = "Coffee Sales Time Series")
+
+# Step 3 - ACF
+acf(coffee_ts, main = "Autocorrelation of Coffee Sales")
+
