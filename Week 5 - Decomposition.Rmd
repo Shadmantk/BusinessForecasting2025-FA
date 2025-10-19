@@ -1,0 +1,98 @@
+---
+title: "Coffee Sales"
+author: "Shadman Tousif Khandoker"
+date: "2025-10-19"
+output: html_document
+---
+
+# Load required libraries
+```{r}
+library(fpp2)
+library(readxl)
+```
+# Read the data
+```{r}
+coffee_data <- read_excel("G:/R files/Coffee Sales Data Clean.xlsx")
+```
+
+# Display basic info
+```{r}
+cat("Number of observations:", nrow(coffee_data), "\n")
+cat("Sales range:", min(coffee_data$Sales), "to", max(coffee_data$Sales), "\n")
+```
+
+# Create time series
+```{r}
+coffee_ts <- ts(coffee_data$Sales, start = c(2024, 1), frequency = 12)
+```
+
+# Display time series info
+```{r}
+cat("Time series length:", length(coffee_ts), "months\n")
+print(coffee_ts)
+```
+
+# Basic time series plot
+```{r}
+plot(coffee_ts, 
+     main = "Coffee Sales Time Series", 
+     ylab = "Sales Amount", 
+     xlab = "Time",
+     col = "blue", 
+     lwd = 2)
+grid()
+```
+# Moving average trend analysis
+```{r}
+if(length(coffee_ts) >= 3) {
+  ma_trend <- ma(coffee_ts, order = 3)
+  plot(coffee_ts, 
+       main = "Coffee Sales with Trend Line", 
+       ylab = "Sales Amount", 
+       xlab = "Time")
+  lines(ma_trend, col = "red", lwd = 2)
+  legend("topleft", 
+         legend = c("Original Sales", "Trend (3-Month MA)"), 
+         col = c("black", "red"), 
+         lty = 1)
+}
+```
+
+# Decomposition
+```{r}
+decomp_success <- FALSE
+
+tryCatch({
+  decomp_result <- decompose(coffee_ts)
+  plot(decomp_result, main = "Coffee Sales Decomposition")
+  decomp_success <- TRUE
+}, error = function(e) {
+  cat("Decomposition failed: ", e$message, "\n")
+  cat("Reason: Need at least 2 full years of data for decomposition\n")
+})
+```
+
+# Alternative analysis
+
+if(!decomp_success) {
+  cat("\n=== ALTERNATIVE ANALYSIS ===\n")
+
+
+# Descriptive statistics
+```{r}
+  cat("\nDescriptive Statistics:\n")
+  print(summary(coffee_ts))
+```
+
+# Growth analysis
+```{r}
+  if(length(coffee_ts) > 1) {
+    monthly_growth <- diff(coffee_ts) / coffee_ts[-length(coffee_ts)] * 100
+    cat("\nGrowth Analysis:\n")
+    cat("Average monthly growth:", round(mean(monthly_growth, na.rm = TRUE), 2), "%\n")
+    cat("Maximum growth:", round(max(monthly_growth, na.rm = TRUE), 2), "%\n")
+    cat("Minimum growth:", round(min(monthly_growth, na.rm = TRUE), 2), "%\n")
+  }
+```  
+
+
