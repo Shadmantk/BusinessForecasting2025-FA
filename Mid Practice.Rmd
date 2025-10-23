@@ -1,0 +1,264 @@
+---
+title: "Coffee Sales"
+author: "Shadman Tousif Khandoker"
+output: html_document
+---
+
+# Load required libraries
+```{r}
+library(forecast)
+library(ggplot2)
+library(tseries)
+library(TTR)
+```
+
+# Read data
+```{r}
+coffee_data <- data.frame(
+  Month = c("January", "February", "March", "April", "May", "June", 
+            "July", "August", "September", "October", "November", "December"),
+  Sales = c(27215, 30970, 27825, 26320, 29215, 33455, 
+            32695, 30130, 31990, 25080, 29820, 28550)
+)
+```
+
+# Convert to time series
+```{r}
+coffee_ts <- ts(coffee_data$Sales, start = c(1), frequency = 12)
+```
+
+# Time series plot
+```{r}
+plot(coffee_ts, main = "Coffee Sales Time Series", ylab = "Sales", xlab = "Month")
+grid()
+```
+
+# ACF plot
+```{r}
+acf(coffee_ts, main = "ACF of Coffee Sales")
+
+cat("Observations:\n")
+cat("- The time series shows some fluctuation throughout the year\n")
+cat("- There appears to be some seasonality with peaks and troughs\n")
+```
+
+# CENTRAL TENDENCY 
+```{r}
+cat("CENTRAL TENDENCY\n")
+
+# Summary statistics
+summary_stats <- summary(coffee_data$Sales)
+cat("Summary Statistics:\n")
+print(summary_stats)
+
+# Box plot
+boxplot(coffee_data$Sales, main = "Box Plot of Coffee Sales", ylab = "Sales")
+
+cat("\nObservations from summary stats and box plot:\n")
+cat("- Sales range from", min(coffee_data$Sales), "to", max(coffee_data$Sales), "\n")
+cat("- Median sales:", median(coffee_data$Sales), "\n")
+cat("- The distribution appears symmetric with no extreme outliers\n\n")
+```
+# NAIVE METHOD
+```{r}
+cat(" NAIVE METHOD \n")
+```
+
+# Naive forecast
+```{r}
+naive_forecast <- naive(coffee_ts, h = 12)
+```
+
+# Residual analysis
+```{r}
+naive_residuals <- residuals(naive_forecast)
+
+par(mfrow = c(2, 3))
+plot(naive_residuals, main = "Residuals Plot")
+hist(naive_residuals, main = "Histogram of Residuals")
+plot(fitted(naive_forecast), naive_residuals, main = "Fitted vs Residuals")
+plot(coffee_ts, naive_residuals, main = "Actual vs Residuals")
+par(mfrow = c(1, 1))
+```
+
+# Accuracy measures
+```{r}
+naive_accuracy <- accuracy(naive_forecast)
+cat("Accuracy Measures for Naive Method:\n")
+print(naive_accuracy)
+```
+
+# Forecast
+```{r}
+cat("\nNaive Forecast for Next Year:\n")
+print(naive_forecast$mean)
+
+plot(naive_forecast, main = "Naive Method Forecast")
+
+cat("\nSummary of Naive Method:\n")
+cat("- Simple method using last observation as forecast\n")
+cat("- Accuracy measures show reasonable performance for this dataset\n")
+cat("- Forecast for next year starts at", tail(coffee_data$Sales, 1), "\n\n")
+```
+
+# SIMPLE MOVING AVERAGES
+```{r}
+cat("SIMPLE MOVING AVERAGES\n")
+```
+
+# Calculate moving averages
+```{r}
+sma3 <- SMA(coffee_ts, n = 3)
+sma6 <- SMA(coffee_ts, n = 6)
+sma9 <- SMA(coffee_ts, n = 9)
+```
+
+# Plot with moving averages
+```{r}
+plot(coffee_ts, main = "Coffee Sales with Moving Averages", ylab = "Sales")
+lines(sma3, col = "red", lwd = 2)
+lines(sma6, col = "blue", lwd = 2)
+lines(sma9, col = "green", lwd = 2)
+legend("topright", legend = c("Original", "SMA-3", "SMA-6", "SMA-9"), 
+       col = c("black", "red", "blue", "green"), lty = 1)
+
+cat("Observations:\n")
+cat("- SMA-3 (red) closely follows the original data with less smoothing\n")
+cat("- SMA-6 (blue) provides moderate smoothing\n")
+cat("- SMA-9 (green) provides the most smoothing but loses some detail\n")
+cat("- As moving average order increases, the line becomes smoother but lags more\n\n")
+```
+
+# SIMPLE SMOOTHING
+```{r}
+cat("SIMPLE SMOOTHING\n")
+
+# Simple exponential smoothing
+ses_model <- ses(coffee_ts, h = 12)
+```
+
+# Residual analysis
+```{r}
+ses_residuals <- residuals(ses_model)
+
+par(mfrow = c(2, 3))
+plot(ses_residuals, main = "SES Residuals")
+hist(ses_residuals, main = "SES Residuals Histogram")
+plot(fitted(ses_model), ses_residuals, main = "SES Fitted vs Residuals")
+plot(coffee_ts, ses_residuals, main = "SES Actual vs Residuals")
+acf(ses_residuals, main = "SES Residuals ACF")
+par(mfrow = c(1, 1))
+```
+
+# Accuracy
+```{r}
+ses_accuracy <- accuracy(ses_model)
+cat("\nSES Accuracy Measures:\n")
+print(ses_accuracy)
+```
+
+# Forecast
+```{r}
+cat("\nSES Forecast for Next Year:\n")
+print(ses_model$mean)
+
+plot(ses_model, main = "Simple Exponential Smoothing Forecast")
+
+cat("\nSES Summary:\n")
+cat("- Used weighted average of past observations\n")
+cat("- Provides reasonable forecasts for this time series\n\n")
+```
+
+# HOLT-WINTERS
+```{r}
+cat("HOLT-WINTERS\n")
+```
+
+# Holt-Winters method
+```{r}
+#hw_model <- HoltWinters(coffee_ts)
+cat("\n time series data less than 2 periods\n")
+```
+
+# DECOMPOSITION
+
+cat("DECOMPOSITION\n")
+
+
+# Time series decomposition
+
+decomp <- stl(coffee_ts, s.window = "periodic")
+
+plot(decomp, main = "Time Series Decomposition")
+
+cat("Decomposition Analysis:\n")
+cat("- The time series shows some seasonal pattern\n")
+cat("- Decomposition appears to be additive\n")
+
+
+# Seasonal
+
+seasonal_indices <- decomp$time.series[, "seasonal"]
+cat("\nSeasonal Monthly Indices:\n")
+print(seasonal_indices)
+
+
+# Identify high and low months
+
+high_month <- which.max(seasonal_indices)
+low_month <- which.min(seasonal_indices)
+cat("\nHighest sales month:", month.name[high_month], "\n")
+cat("Lowest sales month:", month.name[low_month], "\n")
+
+cat("\nPossible reasons:\n")
+cat("- High sales in summer months (June) due to increased consumption\n")
+cat("- Low sales in October possibly due to seasonal transitions\n")
+```
+
+# Seasonally adjusted series
+
+seasonal_adj <- coffee_ts - decomp$time.series[, "seasonal"]
+plot(coffee_ts, main = "Seasonally Adjusted vs Actual", col = "blue")
+lines(seasonal_adj, col = "red")
+legend("topright", legend = c("Actual", "Seasonally Adjusted"), 
+       col = c("blue", "red"), lty = 1)
+
+cat("\nSeasonality has moderate fluctuations in the time series\n\n")
+```
+
+# ACCURACY SUMMARY
+```{r}
+cat("ACCURACY SUMMARY\n")
+```
+
+# Accuracy comparison table
+
+accuracy_table <- rbind(
+  naive_accuracy,
+  ses_accuracy,
+  hw_accuracy
+)
+
+rownames(accuracy_table) <- c("Naive", "Simple Smoothing", "Holt-Winters")
+cat("Accuracy Comparison Table:\n")
+print(accuracy_table)
+
+cat("\nMethod Definitions:\n")
+cat("- Naive: Uses last observation as forecast - simple but effective for stable series\n")
+cat("- Simple Smoothing: Weighted average of past observations - good for data without trend/seasonality\n")
+cat("- Simple Moving Average: Good beacuse It smooths out random noise to reveal trends\n")
+```
+
+# CONCLUSION
+```{r}
+cat("CONCLUSION \n")
+
+cat("Time Series Analysis Summary:\n")
+cat("- Coffee sales show moderate seasonality with peaks in summer months\n")
+cat("- Overall sales are relatively stable throughout the year\n")
+
+cat("Forecast Outlook:\n")
+cat("- Next year: Sales expected to remain relatively stable with seasonal patterns\n")
+cat("- Next 2 years: Similar seasonal pattern expected to continue\n\n")
+
+```
