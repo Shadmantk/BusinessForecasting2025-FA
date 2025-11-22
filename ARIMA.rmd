@@ -1,0 +1,41 @@
+---
+title: "ARIMA ANALYSIS"
+author: "Shadman Tousif Khandoker"
+output: html_document
+date: "2025-11-21"
+---
+  
+```{r}
+# Load libraries
+library(readxl)
+library(tseries)
+library(forecast)
+```
+```{r}
+# Read data
+coffee_data <- read_excel("G:\\R files\\Coffee Sales Data Clean.xlsx")
+sales_ts <- ts(coffee_data$Sales, frequency = 12, start = c(1,1))
+```
+
+```{r}
+# 1. Fit ARIMA model
+arima_model <- auto.arima(sales_ts)
+summary(arima_model)
+```
+
+```{r}
+# 2. Residual Analysis
+checkresiduals(arima_model)
+```
+
+```{r}
+# 3. Forecast for next 5 periods
+forecast_result <- forecast(arima_model, h = 5)
+plot(forecast_result, main = "Coffee Sales Forecast", 
+     xlab = "Time Period", ylab = "Sales")
+```
+
+```{r}
+# 4. Model Accuracy
+accuracy(forecast_result)
+```
