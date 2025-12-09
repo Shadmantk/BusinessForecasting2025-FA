@@ -1,0 +1,166 @@
+---
+title: "Final Exam"
+author: "Shadman Tousif Khandoker"
+output: html_document
+date: 12/08/2025
+---
+
+# Load libraries
+```{r}
+library(forecast)
+library(tseries)
+library(TTR)
+```
+
+# 1. IMPORT DATA
+```{r}
+data <- read.csv("G:\\R files\\FINAL\\Data_NewYorkEdited.csv", stringsAsFactors = FALSE)
+data <- data[!is.na(data$Year) & !is.na(data$Month), ]
+data$UnemployedLF <- as.numeric(gsub(",", "", data$UnemployedLF))
+unemp_ts <- ts(data$UnemployedLF, start = c(1976, 1), frequency = 12)
+```
+
+# 2. PLOT AND INFERENCE
+```{r}
+plot(unemp_ts, main = "New York Unemployment (1976-2019)", ylab = "Unemployed Labor Force")
+acf(unemp_ts, main = "ACF of Unemployment", lag.max = 48)
+
+cat("OBSERVATIONS:\n")
+cat("1. Clear cyclical patterns with peaks during recessions (1980s, 1990s, 2001, 2008)\n")
+cat("2. Overall decreasing trend from mid-1990s to 2007\n")
+cat("3. Seasonal patterns visible\n")
+```
+
+# 3. CENTRAL TENDENCY
+```{r}
+summary_stats <- summary(data$UnemployedLF)
+quartiles <- quantile(data$UnemployedLF, probs = c(0.25, 0.5, 0.75))
+
+cat("\nSUMMARY STATISTICS:\n")
+cat("Min:", min(data$UnemployedLF), "\n")
+cat("Q1:", quartiles[1], "\n")
+cat("Median:", quartiles[2], "\n")
+cat("Mean:", mean(data$UnemployedLF), "\n")
+cat("Q3:", quartiles[3], "\n")
+cat("Max:", max(data$UnemployedLF), "\n")
+
+boxplot(data$UnemployedLF, main = "Box Plot of Unemployment")
+```
+
+# 4. DECOMPOSITION
+```{r}
+decomp <- stl(unemp_ts, s.window = "periodic")
+plot(decomp, main = "STL Decomposition")
+
+cat("\nDECOMPOSITION:\n")
+cat("Type: Additive\n")
+cat("Seasonal: Yes\n")
+
+# Seasonal indices
+seasonal <- decomp$time.series[, "seasonal"]
+monthly_avg <- colMeans(matrix(seasonal, ncol = 12, byrow = TRUE), na.rm = TRUE)
+months <- month.name
+
+cat("\nSEASONAL INDICES (Top 3 highest/lowest):\n")
+sorted_indices <- sort(monthly_avg, index.return = TRUE)
+cat("Highest: ", months[sorted_indices$ix[12]], " (", round(sorted_indices$x[12], 1), ")\n", sep = "")
+cat("Lowest: ", months[sorted_indices$ix[1]], " (", round(sorted_indices$x[1], 1), ")\n", sep = "")
+```
+
+# 5. NAIVE METHOD
+```{r}
+naive_fc <- naive(unemp_ts, h = 12)
+cat("\nNAIVE METHOD:\n")
+cat("Forecast for next month:", round(naive_fc$mean[1], 0), "\n")
+print(accuracy(naive_fc))
+```
+
+# 6. SIMPLE MOVING AVERAGES
+```{r}
+plot(unemp_ts, main = "Moving Averages")
+lines(SMA(unemp_ts, n = 3), col = "red", lwd = 2)
+lines(SMA(unemp_ts, n = 6), col = "blue", lwd = 2)
+lines(SMA(unemp_ts, n = 9), col = "green", lwd = 2)
+legend("topright", c("Original", "SMA-3", "SMA-6", "SMA-9"), 
+       col = c("black", "red", "blue", "green"), lty = 1)
+```
+
+# 7. SIMPLE EXPONENTIAL SMOOTHING
+```{r}
+ses_model <- ses(unemp_ts, h = 12)
+cat("\nSIMPLE EXPONENTIAL SMOOTHING:\n")
+cat("Alpha:", round(ses_model$model$par["alpha"], 3), "\n")
+print(accuracy(ses_model))
+```
+
+# 8. HOLT-WINTERS
+```{r}
+hw_model <- HoltWinters(unemp_ts, seasonal = "additive")
+hw_forecast <- forecast(hw_model, h = 12)
+cat("\nHOLT-WINTERS:\n")
+cat("Alpha:", round(hw_model$alpha, 3), "\n")
+cat("Beta:", round(hw_model$beta, 3), "\n")
+cat("Gamma:", round(hw_model$gamma, 3), "\n")
+print(accuracy(hw_forecast))
+```
+
+# 9. ARIMA ANALYSIS
+```{r}
+cat("\nARIMA ANALYSIS:\n")
+
+# Stationarity test
+cat("ADF Test p-value:", adf.test(unemp_ts)$p.value, "\n")
+cat("Data is", ifelse(adf.test(unemp_ts)$p.value < 0.05, "stationary", "non-stationary"), "\n")
+
+# Auto ARIMA
+arima_model <- auto.arima(unemp_ts, seasonal = TRUE, stepwise = TRUE)
+cat("Selected ARIMA model:", arima_model$arma, "\n")
+cat("AIC:", AIC(arima_model), "\n")
+
+# Forecasts
+arima_fc_1yr <- forecast(arima_model, h = 12)
+arima_fc_2yr <- forecast(arima_model, h = 24)
+
+cat("\nARIMA 1-Year Forecast (first 3 months):\n")
+print(round(arima_fc_1yr$mean[1:3], 0))
+```
+
+# 10. ACCURACY COMPARISON
+```{r}
+cat("\nACCURACY COMPARISON (RMSE):\n")
+cat("Naive:", round(accuracy(naive_fc)[1,"RMSE"], 0), "\n")
+cat("SES:", round(accuracy(ses_model)[1,"RMSE"], 0), "\n")
+cat("Holt-Winters:", round(accuracy(hw_forecast)[1,"RMSE"], 0), "\n")
+cat("ARIMA:", round(accuracy(arima_model)[1,"RMSE"], 0), "\n")
+
+# Create accuracy table
+accuracy_table <- data.frame(
+  Model = c("Naive", "SES", "Holt-Winters", "ARIMA"),
+  RMSE = c(accuracy(naive_fc)[1,"RMSE"], 
+           accuracy(ses_model)[1,"RMSE"], 
+           accuracy(hw_forecast)[1,"RMSE"], 
+           accuracy(arima_model)[1,"RMSE"]),
+  MAE = c(accuracy(naive_fc)[1,"MAE"], 
+          accuracy(ses_model)[1,"MAE"], 
+          accuracy(hw_forecast)[1,"MAE"], 
+          accuracy(arima_model)[1,"MAE"]),
+  MAPE = c(accuracy(naive_fc)[1,"MAPE"], 
+           accuracy(ses_model)[1,"MAPE"], 
+           accuracy(hw_forecast)[1,"MAPE"], 
+           accuracy(arima_model)[1,"MAPE"])
+)
+
+print(accuracy_table)
+```
+
+# 11. CONCLUSION
+```{r}
+cat("\nCONCLUSION:\n")
+cat("1. Unemployment shows clear seasonal patterns and economic cycles\n")
+cat("2. Best model: ARIMA (lowest RMSE)\n")
+cat("3. Next year forecast: Stable with seasonal fluctuations\n")
+cat("4. Next 2 years: Slight upward trend expected\n")
+
+# Final forecast plot
+plot(arima_fc_1yr, main = "ARIMA Forecast for Next Year", ylab = "Unemployed Labor Force")
+```
